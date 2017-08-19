@@ -1,4 +1,4 @@
-package com.shengd.chat.client.ui;
+package com.shengd.chat.client;
 
 import javax.swing.*;
 import java.awt.*;
@@ -65,7 +65,7 @@ public class LoginUI { // not extending JFrame until needed
     private void login() {
 
         loginWindow.dispose();
-        new ChatUI();
+//        new ChatUI();
 
 
 

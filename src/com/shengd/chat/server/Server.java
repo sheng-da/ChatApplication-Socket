@@ -5,12 +5,14 @@ import com.shengd.chat.server.ui.ServerUI;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by da on 8/16/17.
  */
 public class Server {
 
+    static ArrayList<Thread> allUsers = new ArrayList<Thread>();
 
     static ServerSocket serverSocket = null;
 
@@ -28,8 +30,6 @@ public class Server {
         }
 
 
-
-        // seems like
         // new thread listen to client connection request
         new Thread(new Runnable(){
             public void run() {
@@ -37,7 +37,9 @@ public class Server {
                     try {
                         Socket socket = serverSocket.accept();
                         System.out.println("Connection established");
-                        new Thread(new RequestHandler(socket)).start();
+                        Thread user = new Thread(new RequestHandler(socket));
+                        allUsers.add(user);
+                        user.start();
                         // conversation handler
                     } catch (Exception e) {
                         e.printStackTrace();

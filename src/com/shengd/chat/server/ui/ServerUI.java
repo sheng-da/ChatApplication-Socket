@@ -10,52 +10,29 @@ import java.awt.event.ActionListener;
 /**
  * Created by da on 8/16/17.
  */
-public class ServerUI extends JFrame{
-    private static final long serialVersionUID = 1L; // TODO: ??
+public class ServerUI { // not extending JFrame untill needed
+    static JFrame serverWindow = new JFrame("Client Server");
+    static JPanel panel = new JPanel();
+    static JLabel label =  new JLabel("Port:" + "9999"); // hard coded for now
+    static JButton currentUserBtn = new JButton("Online User");
+    static JButton RegUserBtn = new JButton("Reg User");
+    static JButton exitBtn = new JButton("Exit");
+    static JPanel panel2 = new JPanel();
+    static JTextArea info  = new JTextArea(10,30);
 
     public ServerUI() {
-        this.setTitle("Client Server");
-        this.setSize(400,200); // hard coded right now
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
+        serverWindow.setSize(400,200); // hard coded right now
+        serverWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JLabel label = new JLabel("Port:" + "9999"); // hard coded for now
-        panel.add(label);
-        JButton currentUserBtn = new JButton("Online User");
-        JButton RegUserBtn = new JButton("Reg User");
-        JButton exitBtn = new JButton("Exit");
         panel.add(currentUserBtn);
         panel.add(RegUserBtn);
         panel.add(exitBtn);
 
-        this.add(panel,BorderLayout.NORTH);
-
-
-        JPanel panel2 = new JPanel();
-
-//        JTable table = new JTable();
-//        DefaultTableModel  tableModel= (DefaultTableModel) table.getModel();
-//
-//        tableModel.addColumn("1");
-//        tableModel.addColumn("2");
-//        tableModel.addColumn("3");
-//
-//        JScrollPane spTable = new JScrollPane(table);
-//
-
-        //should use Jtable to display info
-        // use Jtext to test right now
-        JTextArea info  = new JTextArea(10,30);
+        serverWindow.add(panel,BorderLayout.NORTH);
         panel2.add(info);
-
-
-        this.add(panel2, BorderLayout.CENTER);
-
-
-        this.setVisible(true);
-
-
+        serverWindow.add(panel2, BorderLayout.CENTER);
+        serverWindow.setVisible(true);
 
         currentUserBtn.addActionListener(new ActionListener() {
             @Override

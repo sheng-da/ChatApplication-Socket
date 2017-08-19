@@ -1,4 +1,7 @@
-package com.shengd.chat.client.ui;
+package com.shengd.chat.client;
+
+import com.shengd.chat.Message;
+import com.shengd.chat.client.Client;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,19 +26,21 @@ public class ChatUI { // all using static structure for now
     static JPanel chat = new JPanel();
 
 
-    static BufferedReader in;
-    static PrintWriter out;
-
     Socket socket;
+    Client client;
 
-    public ChatUI(Socket socket) {
+    public ChatUI(Socket socket, Client client) {
+        this.client = client;
         this.socket = socket;
 
+        chatArea.setEditable(false);
+        textArea.setEditable(true);
         //chat.setLayout(new GridLayout(4,1));
         chat.add(chatArea);
         chat.add(function);
         chat.add(textArea);
         chat.add(sendBtn);
+
 
         status.setLayout(new BorderLayout());
         status.add(curUser, BorderLayout.NORTH);
@@ -51,18 +56,28 @@ public class ChatUI { // all using static structure for now
         chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
+
+
         sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                chatWindow.out
+                client.sendMessage(new Message(0,chatArea.getText()));
+                chatArea.setText("");
             }
         });
 
     }
 
-    public static void main(String[] args) {
-
+    void append(String str) {
+        chatArea.append(str);
+        //chatArea.setCaretPosition(chatArea.getText().length()-1);
     }
+
+
+
+//    public static void main(String[] args) {
+//
+//    }
 
 
 
