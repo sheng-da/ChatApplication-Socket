@@ -1,7 +1,7 @@
 package com.shengd.chat.client;
 
-import com.shengd.chat.Message;
-import com.shengd.chat.server.MessageType;
+import com.shengd.chat.model.Request;
+import com.shengd.chat.model.MessageType;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,11 +10,9 @@ import java.net.Socket;
  * Created by da on 8/16/17.
  */
 public class Client {
-    private ObjectInputStream objectInputStream;
-    private ObjectOutputStream objectOutputStream;
+//    private ObjectInputStream objectInputStream;
+//    private ObjectOutputStream objectOutputStream;
     private Socket socket;
-
-
     private ChatUI ui;
 
 
@@ -29,6 +27,8 @@ public class Client {
     public Client(){
         try {
             socket = new Socket("127.0.0.1",9999);
+            ClientBuffer.objectOutputStream =  new ObjectOutputStream(socket.getOutputStream());
+            ClientBuffer.objectInputStream = new ObjectInputStream(socket.getInputStream());
             System.out.println("Connect to server.");
 
         } catch (Exception e){
@@ -39,21 +39,21 @@ public class Client {
 
     public boolean start() {
 
-        try {
-            //must in this order to avoid blocke
-            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.flush();
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            //must in this order to avoid blocke
+//            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+//            objectOutputStream.flush();
+//            objectInputStream = new ObjectInputStream(socket.getInputStream());
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         System.out.println("I/O loaded");
 
-        new ServerListener().start();
+        new ResponseHandler().start();
 
-        ui = new ChatUI(socket,this); // pass the socket in UI for now
+        ui = new ChatUI(this); // pass the socket in UI for now
 
 
 
@@ -65,32 +65,35 @@ public class Client {
         ui.append(message);
     }
 
-    public void sendMessage(Message msg) {
+    public void sendMessage(Request msg) {
         try {
-            objectOutputStream.writeObject(msg);
+            ClientBuffer.objectOutputStream.writeObject(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    class ServerListener extends Thread {
+    class ResponseHandler extends Thread {
         @Override
         public void run() {
             while(true) {
-                Message msg = null;
+                Request msg = null;
                 try {
-                    msg = (Message)objectInputStream.readObject();
+                    msg = (Request)ClientBuffer.objectInputStream.readObject();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
                 if (msg.getType() == MessageType.TEXT)  {// hard coded for now
-                    displayMessage(msg.getSendTime() + ": " + msg.getMessage() + "\n");
+                    displayMessage(msg.getUserID() + "(" + msg.getSendTime() + "): " + msg.getMessage() + "\n");
                 } else if (msg.getType() == MessageType.LOGIN) {
-                    displayMessage("User Connected\n");
+                    displayMessage("User " + msg.getUserID() + " Connected\n");
+                    if ( ClientBuffer.UserId == -1) { //NOT SAFE TODO:....
+                        ClientBuffer.UserId = msg.getUserID();
+                    }
                 } else if (msg.getType() == MessageType.LOGOUT) {
-                    displayMessage("User Disconnected\n");
+                    displayMessage("User " + msg.getUserID() + " Disconnected\n");
                 }
             }
         }

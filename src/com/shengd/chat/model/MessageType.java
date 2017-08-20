@@ -1,4 +1,4 @@
-package com.shengd.chat.server;
+package com.shengd.chat.model;
 
 /**
  * Created by da on 8/20/17.
