@@ -2,11 +2,14 @@ package com.shengd.chat.client;
 
 import com.shengd.chat.Message;
 import com.shengd.chat.client.Client;
+import com.shengd.chat.server.MessageType;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -52,19 +55,39 @@ public class ChatUI { // all using static structure for now
         chatWindow.add(status);
         chatWindow.add(chat);
         chatWindow.setVisible(true);
-        chatWindow.setSize(500,800);
+        chatWindow.setSize(1000,800);
         chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
+        client.sendMessage(new Message(MessageType.LOGIN,"Login"));
 
 
         sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendMessage(new Message(0,chatArea.getText()));
-                chatArea.setText("");
+                client.sendMessage(new Message(MessageType.TEXT,textArea.getText().toString()));
+                textArea.setText("");
             }
         });
+
+        chatWindow.addWindowListener(new WindowAdapter() {
+//            @Override
+//            public void windowOpened(WindowEvent windowEvent) {
+//                super.windowOpened(windowEvent);
+//                client.sendMessage(new Message(MessageType.LOGIN,"Login"));
+//            }
+
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                client.sendMessage(new Message(MessageType.LOGOUT,"Logout"));
+                System.exit(0);
+            }
+        });
+
+
+
+
+
+
 
     }
 

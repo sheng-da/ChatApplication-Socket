@@ -1,6 +1,7 @@
 package com.shengd.chat.client;
 
 import com.shengd.chat.Message;
+import com.shengd.chat.server.MessageType;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,29 +13,53 @@ public class Client {
     private ObjectInputStream objectInputStream;
     private ObjectOutputStream objectOutputStream;
     private Socket socket;
+
+
     private ChatUI ui;
 
 
     public static void main(String[] args) {
-        new Client();
+        Client client = new Client();
+        client.start();
+
     }
 
 
     //connectServer
     public Client(){
         try {
-            Socket socket = new Socket("127.0.0.1",9999);
+            socket = new Socket("127.0.0.1",9999);
             System.out.println("Connect to server.");
 
-            ui = new ChatUI(socket,this); // pass the socket in UI for now
-
-            objectInputStream = new ObjectInputStream(socket.getInputStream());
-            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
         } catch (Exception e){
             e.printStackTrace();
         }
 
     }
+
+    public boolean start() {
+
+        try {
+            //must in this order to avoid blocke
+            objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.flush();
+            objectInputStream = new ObjectInputStream(socket.getInputStream());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("I/O loaded");
+
+        new ServerListener().start();
+
+        ui = new ChatUI(socket,this); // pass the socket in UI for now
+
+
+
+        return true;
+    }
+
 
     public void displayMessage(String message){
         ui.append(message);
@@ -60,8 +85,12 @@ public class Client {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                if (msg.getType() == 0)  {// hard coded for now
-                    ui.append(msg.getSendTime() + ": " + msg.getMessage());
+                if (msg.getType() == MessageType.TEXT)  {// hard coded for now
+                    displayMessage(msg.getSendTime() + ": " + msg.getMessage() + "\n");
+                } else if (msg.getType() == MessageType.LOGIN) {
+                    displayMessage("User Connected\n");
+                } else if (msg.getType() == MessageType.LOGOUT) {
+                    displayMessage("User Disconnected\n");
                 }
             }
         }
