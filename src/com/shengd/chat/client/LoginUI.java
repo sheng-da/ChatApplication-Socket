@@ -73,9 +73,9 @@ public class LoginUI { // not extending JFrame until needed
         if (password.getText() == null) return;
 
         // I suppose we get the user object from the server.
+        // these part are hard coded for now..
         Random rand = new Random();
-        User test = new User(rand.nextInt(),username.getText(),password.getText()); // TODO: ??
-        //add user ....username .... pasword == null ... .register user in the client buffer if login successfully
+        User test = new User(rand.nextInt(),username.getText(),password.getText());
 
         ClientBuffer.user = test;
         loginWindow.dispose();
