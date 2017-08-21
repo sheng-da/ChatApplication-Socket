@@ -1,5 +1,7 @@
 package com.shengd.chat.client;
 
+import com.shengd.chat.model.User;
+
 import java.awt.image.DataBuffer;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,7 +12,7 @@ import java.io.ObjectOutputStream;
 public class ClientBuffer {
     public static ObjectOutputStream objectOutputStream;
     public static ObjectInputStream objectInputStream;
-    public static int UserId = -1;
+    public static User user;
 
     private ClientBuffer(){}
 }

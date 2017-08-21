@@ -1,7 +1,5 @@
 package com.shengd.chat.model;
 
-import com.shengd.chat.model.MessageType;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -11,42 +9,56 @@ import java.util.Date;
 public class Request implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    private MessageType type;
+
+
+    private RequestType type;
     private String message;
     private Date sendTime;
-    private int userID = -1;
+    private User fromUser;
 
-    public Request(MessageType type, String message){
-        this.type = type;
-        this. message = message;
-        sendTime = new Date();
-    }
-
-    public Request(MessageType type, String message, int userID){
+    public Request(RequestType type, String message){
         this.type = type;
         this.message = message;
-        this.userID = userID;
         sendTime = new Date();
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public Request(RequestType type, String message, User user){
+        this.type = type;
+        this.message = message;
+        fromUser = user;
+        sendTime = new Date();
     }
 
-    public MessageType getType() {
+    public RequestType getType() {
         return type;
+    }
+
+    public void setType(RequestType type) {
+        this.type = type;
     }
 
     public String getMessage() {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public Date getSendTime() {
         return sendTime;
     }
 
-    public int getUserID() {
-        return  userID;
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public User getFromUser() {
+        return fromUser;
+    }
+
+    public void setFromUser(User fromUser) {
+        this.fromUser = fromUser;
     }
 
 }

@@ -1,9 +1,12 @@
 package com.shengd.chat.client;
 
+import com.shengd.chat.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 /**
  * Created by da on 8/16/17.
@@ -12,7 +15,7 @@ public class LoginUI { // not extending JFrame until needed
 
     static JFrame loginWindow = new JFrame("Login/Register");
     static JPanel jPanel1 = new JPanel(),jPanel2 = new JPanel(),jPanel3= new JPanel();
-    static JLabel passwordLabel = new JLabel("Username"),usernameLabel = new JLabel("Password");
+    static JLabel passwordLabel = new JLabel("Password"),usernameLabel = new JLabel("Username");
     static JButton loginBtn = new JButton("login"),exitBtn= new JButton("exit"),registerBtn= new JButton("register");
     static JTextField username = new JTextField(10), password = new JPasswordField(10);
 
@@ -64,8 +67,19 @@ public class LoginUI { // not extending JFrame until needed
 
     private void login() {
 
+        // TODO: identity verification
+
+        if (username.getText() == null) return;
+        if (password.getText() == null) return;
+
+        // I suppose we get the user object from the server.
+        Random rand = new Random();
+        User test = new User(rand.nextInt(),username.getText(),password.getText()); // TODO: ??
+        //add user ....username .... pasword == null ... .register user in the client buffer if login successfully
+
+        ClientBuffer.user = test;
         loginWindow.dispose();
-//        new ChatUI();
+        new ChatUI();
 
 
 

@@ -1,7 +1,7 @@
 package com.shengd.chat.client;
 
 import com.shengd.chat.model.Request;
-import com.shengd.chat.model.MessageType;
+import com.shengd.chat.model.RequestType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -26,12 +27,8 @@ public class ChatUI { // all using static structure for now
     static JPanel chat = new JPanel();
 
 
-    Socket socket;
-    Client client;
+    public ChatUI() {
 
-    public ChatUI( Client client) {
-        this.client = client;
-     //   this.socket = socket;
 
         chatArea.setEditable(false);
         textArea.setEditable(true);
@@ -55,36 +52,40 @@ public class ChatUI { // all using static structure for now
         chatWindow.setSize(1000,800);
         chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        client.sendMessage(new Request(MessageType.LOGIN,"Login"));
+        try {
+            ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.LOGIN,"Login",ClientBuffer.user));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendMessage(new Request(MessageType.TEXT,textArea.getText().toString()));
+                try {
+                    ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.TEXT,textArea.getText().toString(),ClientBuffer.user));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 textArea.setText("");
             }
         });
 
         chatWindow.addWindowListener(new WindowAdapter() {
-//            @Override
-//            public void windowOpened(WindowEvent windowEvent) {
-//                super.windowOpened(windowEvent);
-//                client.sendMessage(new Request(MessageType.LOGIN,"Login"));
-//            }
+
 
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                client.sendMessage(new Request(MessageType.LOGOUT,"Logout"));
+                try {
+                    ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.LOGOUT,"Logout",ClientBuffer.user));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 System.exit(0);
             }
         });
 
-
-
-
-
-
+        new ResponseHandler(this).start();
 
     }
 
@@ -92,16 +93,6 @@ public class ChatUI { // all using static structure for now
         chatArea.append(str);
         //chatArea.setCaretPosition(chatArea.getText().length()-1);
     }
-
-
-
-//    public static void main(String[] args) {
-//
-//    }
-
-
-
-
 
 
 }
