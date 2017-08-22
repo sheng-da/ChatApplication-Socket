@@ -1,12 +1,12 @@
 package com.shengd.chat.server;
 
-import com.shengd.chat.model.Request;
-import com.shengd.chat.model.RequestType;
+import com.shengd.chat.model.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,33 +33,95 @@ public class RequestHandler extends Thread {
 
 
                 while(true) {
-                    Request msg = (Request)objectInputStream.readObject();
-                  //  msg.setUserID(id); // set user Id here....TODO:
+                    Request request = (Request)objectInputStream.readObject();
 
-                    if (msg.getType() == RequestType.TEXT) { //hard coded for now
-                        broadcast(msg);
+                    if (request.getType() == RequestType.TEXT) { // DUPLICATE CODE FOR REQUEST AND RESPONSE
+                        Response response = new Response();
+                        response.setType(ResponseType.TEXT);
+                        response.addContent("msg",request.getContent("msg"));
+                        broadcast(response);
                     }
-                    else if (msg.getType() == RequestType.LOGIN) {
-                        //  allUsers.add(this);
+                    else if (request.getType() == RequestType.LOGIN) {
 
-                        ServerBuffer.userOutputMap.put(msg.getFromUser().getId(),objectOutputStream);
-                        ServerBuffer.userInputMap.put(msg.getFromUser().getId(),objectInputStream);
-                        ServerBuffer.userIDs.add(msg.getFromUser().getId());
+                        String username = (String) request.getContent("username");
+                        String password = (String) request.getContent("password");
 
-                        System.out.println("Add client.");
-                        // test
-                        broadcast(msg);
+                        UserService userService = new UserService();
+                        List<User> users = userService.loadAllUsers();
+                        User user = userService.login(username,password);
 
-                    } else if (msg.getType() == RequestType.LOGOUT) {
-                        broadcast(msg);
+                        // not exist
+                        if (user == null) {
+                            Response response = new Response();
+                            response.setStatus(ResponseStatus.FAIL);
+                            objectOutputStream.writeObject(response);
+                        } else { // found
+                            Response response = new Response();
+                            response.setStatus(ResponseStatus.SUCCESS);
+                            response.addContent("usr",user);
+                            objectOutputStream.writeObject(response);
+                        }
 
-                        ServerBuffer.userIDs.remove(msg.getFromUser().getId());
-                        ServerBuffer.userInputMap.remove(msg.getFromUser().getId());
-                        ServerBuffer.userOutputMap.remove(msg.getFromUser().getId());
 
+
+//                        User user = (User)request.getContent("usr");
 //
-//                        allUsers.remove(this);
-                        System.out.println("Remove client.");
+//                        ServerBuffer.userOutputMap.put(user.getId(),objectOutputStream);
+//                        ServerBuffer.userInputMap.put(user.getId(),objectInputStream);
+//                        ServerBuffer.userIDs.add(user.getId());
+//
+//                        System.out.println("Add client: Id "+ user.getId());
+//
+//                        // create response
+//                        Response response= new Response();
+//                        response.setType(ResponseType.LOGIN);
+//                        response.addContent("usr", user);
+//                        broadcast(response);
+
+                    } else if (request.getType() == RequestType.LOGOUT) {
+                        User user = (User)request.getContent("usr");
+
+                        ServerBuffer.userIDs.remove(user.getId());
+                        ServerBuffer.userInputMap.remove(user.getId());
+                        ServerBuffer.userOutputMap.remove(user.getId());
+
+                        // create response
+                        Response response= new Response();
+                        response.setType(ResponseType.LOGIN);
+                        response.addContent("usr", user);
+                        broadcast(response);
+
+
+                        System.out.println("Remove client: Id " + user.getId());
+                        break;
+                    } else if (request.getType() == RequestType.REGISTER) {
+                        UserService userService = new UserService();
+                        String username = (String) request.getContent("username");
+                        String password = (String) request.getContent("password");
+
+                        // too slow......in checking if dupilicate username...might use map instead...
+                        // if username is unique....
+                        List<User> users = userService.loadAllUsers();
+                        if (users != null) {
+                            for (User user: users) {
+                                if (username.equals(user.getUsername())) { //duplicate username
+                                    Response response = new Response();
+                                    response.setStatus(ResponseStatus.FAIL);
+                                    objectOutputStream.writeObject(response);
+                                    break;
+                                }
+                            }
+                        }
+
+                        //success
+                        User user = new User(username,password);
+                        userService.addUser(user);
+
+                        // send response to notify the client
+                        Response response = new Response();
+                        response.addContent("usr",user);
+                        response.setStatus(ResponseStatus.SUCCESS);
+                        objectOutputStream.writeObject(response);
                         break;
                     }
                 }
@@ -70,10 +132,10 @@ public class RequestHandler extends Thread {
 
         }
 
-        public void broadcast(Request msg) {
+        public void broadcast(Response response) {
             try {
                 for (Map.Entry<Integer, ObjectOutputStream> entry: ServerBuffer.userOutputMap.entrySet()) {
-                    entry.getValue().writeObject(msg); // broadcast
+                    entry.getValue().writeObject(response); // broadcast
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();

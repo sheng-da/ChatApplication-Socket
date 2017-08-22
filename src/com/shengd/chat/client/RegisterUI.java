@@ -1,9 +1,12 @@
 package com.shengd.chat.client;
 
+import com.shengd.chat.model.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 /**
  * Created by da on 8/20/17.
@@ -68,13 +71,37 @@ public class RegisterUI { // not extending JFrame until needed
 
         public void register() {
 
-            // if success
-            // pop message
+            if (!password1.getText().equals(password2.getText())) {
+                JOptionPane.showMessageDialog(registerWindow,"Two password should be the same", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-            // send request to server // back to loginUI
+            Response response = null;
+            Request request = new Request();
+            request.setType(RequestType.REGISTER);
+            request.addContent("username",username.getText());
+            request.addContent("password",password1.getText());
 
-            // if not success
-            // pop message
+            try {
+                ClientBuffer.objectOutputStream.writeObject(request);
+                try {
+                    response = (Response) ClientBuffer.objectInputStream.readObject();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
+            if (response.getStatus() == ResponseStatus.FAIL) {
+                JOptionPane.showMessageDialog(registerWindow,"Register Fail", "Server Error", JOptionPane.ERROR_MESSAGE);
+            } else if (response.getStatus() == ResponseStatus.SUCCESS) {
+                User user = (User) response.getContent("user");
+                JOptionPane.showMessageDialog(registerWindow,"Success!\n" + "Your username: "
+                        + user.getUsername() +"\nYour password: " + user.getPassword(),
+                        "Register Success", JOptionPane.INFORMATION_MESSAGE);
+
+                registerWindow.dispose();
+            }
         }
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 /**
  * Created by da on 8/20/17.
  */
-public class ServerBuffer {
+public class ServerBuffer { //severbuffer for online users
 
     public static ServerSocket serverSocket;
 

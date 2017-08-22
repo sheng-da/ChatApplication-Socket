@@ -1,11 +1,13 @@
 package com.shengd.chat.client;
 
-import com.shengd.chat.model.User;
+import com.shengd.chat.model.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.DataBuffer;
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -52,6 +54,13 @@ public class LoginUI { // not extending JFrame until needed
             }
         });
 
+        registerBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                new RegisterUI();
+            }
+        });
+
 
         exitBtn.addActionListener(new ActionListener() {
             @Override
@@ -67,19 +76,49 @@ public class LoginUI { // not extending JFrame until needed
 
     private void login() {
 
-        // TODO: identity verification
 
-        if (username.getText() == null) return;
-        if (password.getText() == null) return;
+        Response response = null;
+        Request request = new Request();
+        request.setType(RequestType.LOGIN);
+        request.addContent("username",username.getText());
+        request.addContent("password",password.getText());
 
-        // I suppose we get the user object from the server.
-        // these part are hard coded for now..
-        Random rand = new Random();
-        User test = new User(rand.nextInt(),username.getText(),password.getText());
+        try {
+            ClientBuffer.objectOutputStream.writeObject(request);
+            try {
+                response = (Response) ClientBuffer.objectInputStream.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        ClientBuffer.user = test;
-        loginWindow.dispose();
-        new ChatUI();
+        if (response.getStatus() == ResponseStatus.FAIL) {
+            JOptionPane.showMessageDialog(loginWindow,"Username not found/password incorrect", "Login Fail", JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() == ResponseStatus.SUCCESS) {
+            User user = (User) response.getContent("user");
+            ClientBuffer.user = user;
+            loginWindow.dispose();
+            new ChatUI();
+        }
+
+
+
+
+//        // TODO: identity verification
+//
+//        if (username.getText() == null) return;
+//        if (password.getText() == null) return;
+//
+//        // I suppose we get the user object from the server.
+//        // these part are hard coded for now..
+//        Random rand = new Random();
+//        User test = new User(rand.nextInt(),username.getText(),password.getText());
+//
+//        ClientBuffer.user = test;
+//        loginWindow.dispose();
+//        new ChatUI();
 
 
 

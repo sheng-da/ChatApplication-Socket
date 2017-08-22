@@ -1,5 +1,6 @@
 package com.shengd.chat.client;
 
+import com.shengd.chat.model.Message;
 import com.shengd.chat.model.Request;
 import com.shengd.chat.model.RequestType;
 
@@ -9,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.DataBuffer;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -51,19 +53,26 @@ public class ChatUI { // all using static structure for now
         chatWindow.setVisible(true);
         chatWindow.setSize(1000,800);
         chatWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        try {
-            ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.LOGIN,"Login",ClientBuffer.user));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//
+//        try {
+//            Request request = new Request();
+//            request.setType(RequestType.LOGIN);
+//            request.addContent("usr",ClientBuffer.user);
+//            ClientBuffer.objectOutputStream.writeObject(request);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 
         sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.TEXT,textArea.getText().toString(),ClientBuffer.user));
+                    Message msg = new Message(textArea.getText(), ClientBuffer.user);
+                    Request request = new Request();
+                    request.setType(RequestType.TEXT);
+                    request.addContent("msg",msg);
+                    ClientBuffer.objectOutputStream.writeObject(request);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -77,7 +86,10 @@ public class ChatUI { // all using static structure for now
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 try {
-                    ClientBuffer.objectOutputStream.writeObject(new Request(RequestType.LOGOUT,"Logout",ClientBuffer.user));
+                    Request request = new Request();
+                    request.setType(RequestType.LOGOUT);
+                    request.addContent("usr",ClientBuffer.user);
+                    ClientBuffer.objectOutputStream.writeObject(request);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

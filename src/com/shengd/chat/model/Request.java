@@ -2,31 +2,21 @@ package com.shengd.chat.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by da on 8/18/17.
  */
-public class Request implements Serializable{
+public class Request implements Serializable {
     private static final long serialVersionUID = 1L;
 
-
-
     private RequestType type;
-    private String message;
-    private Date sendTime;
-    private User fromUser;
+    private Map<String, Object> contentsMap;
 
-    public Request(RequestType type, String message){
-        this.type = type;
-        this.message = message;
-        sendTime = new Date();
-    }
-
-    public Request(RequestType type, String message, User user){
-        this.type = type;
-        this.message = message;
-        fromUser = user;
-        sendTime = new Date();
+    public Request() {
+        contentsMap = new HashMap<String, Object>();
     }
 
     public RequestType getType() {
@@ -37,28 +27,15 @@ public class Request implements Serializable{
         this.type = type;
     }
 
-    public String getMessage() {
-        return message;
+    public Map<String, Object> getContents() {
+        return contentsMap;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public Object getContent(String name) {
+        return contentsMap.get(name);
     }
 
-    public Date getSendTime() {
-        return sendTime;
+    public void addContent(String name, Object content) {
+        contentsMap.put(name, content);
     }
-
-    public void setSendTime(Date sendTime) {
-        this.sendTime = sendTime;
-    }
-
-    public User getFromUser() {
-        return fromUser;
-    }
-
-    public void setFromUser(User fromUser) {
-        this.fromUser = fromUser;
-    }
-
 }
