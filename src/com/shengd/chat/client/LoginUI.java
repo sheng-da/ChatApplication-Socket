@@ -86,7 +86,9 @@ public class LoginUI { // not extending JFrame until needed
         try {
             ClientBuffer.objectOutputStream.writeObject(request);
             try {
-                response = (Response) ClientBuffer.objectInputStream.readObject();
+
+                // BUG: CAN NOT LOG IN AFTER REGISTRATION
+                response = (Response) ClientBuffer.objectInputStream.readObject(); //BUG HERE: RESPONSE == NULL???? WHY
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -96,31 +98,11 @@ public class LoginUI { // not extending JFrame until needed
 
         if (response.getStatus() == ResponseStatus.FAIL) {
             JOptionPane.showMessageDialog(loginWindow,"Username not found/password incorrect", "Login Fail", JOptionPane.ERROR_MESSAGE);
-        } else if (response.getStatus() == ResponseStatus.SUCCESS) {
-            User user = (User) response.getContent("user");
+        } else if (response.getStatus() == ResponseStatus.SUCCESS) {  //SHOULD AVOID REPEATED LOGIN
+            User user = (User) response.getContent("usr");
             ClientBuffer.user = user;
             loginWindow.dispose();
             new ChatUI();
         }
-
-
-
-
-//        // TODO: identity verification
-//
-//        if (username.getText() == null) return;
-//        if (password.getText() == null) return;
-//
-//        // I suppose we get the user object from the server.
-//        // these part are hard coded for now..
-//        Random rand = new Random();
-//        User test = new User(rand.nextInt(),username.getText(),password.getText());
-//
-//        ClientBuffer.user = test;
-//        loginWindow.dispose();
-//        new ChatUI();
-
-
-
     }
 }

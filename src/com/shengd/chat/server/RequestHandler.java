@@ -45,21 +45,29 @@ public class RequestHandler extends Thread {
 
                         String username = (String) request.getContent("username");
                         String password = (String) request.getContent("password");
+                        User user = null;
 
                         UserService userService = new UserService();
                         List<User> users = userService.loadAllUsers();
-                        User user = userService.login(username,password);
+                        if (users != null) user = userService.login(username,password);
 
-                        // not exist
-                        if (user == null) {
+
+                        if (users == null || user == null) { // list or usr not exist
                             Response response = new Response();
                             response.setStatus(ResponseStatus.FAIL);
                             objectOutputStream.writeObject(response);
+                            objectOutputStream.flush();
                         } else { // found
                             Response response = new Response();
                             response.setStatus(ResponseStatus.SUCCESS);
                             response.addContent("usr",user);
+
                             objectOutputStream.writeObject(response);
+                            objectOutputStream.flush();
+
+                            ServerBuffer.userOutputMap.put(user.getId(),objectOutputStream);
+                            ServerBuffer.userInputMap.put(user.getId(),objectInputStream);
+                            ServerBuffer.userIDs.add(user.getId());
                         }
 
 
@@ -93,6 +101,10 @@ public class RequestHandler extends Thread {
 
 
                         System.out.println("Remove client: Id " + user.getId());
+
+                        // close the socket
+                        socket.close();
+
                         break;
                     } else if (request.getType() == RequestType.REGISTER) {
                         UserService userService = new UserService();

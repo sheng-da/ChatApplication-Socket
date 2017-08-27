@@ -1,9 +1,11 @@
 package com.shengd.chat.server.ui;
 
+import com.shengd.chat.model.User;
+import com.shengd.chat.server.UserService;
+
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -29,7 +31,7 @@ public class ServerUI { // not extending JFrame untill needed
         panel.add(RegUserBtn);
         panel.add(exitBtn);
 
-        serverWindow.add(panel,BorderLayout.NORTH);
+        serverWindow.add(panel, BorderLayout.NORTH);
         panel2.add(info);
         serverWindow.add(panel2, BorderLayout.CENTER);
         serverWindow.setVisible(true);
@@ -40,6 +42,7 @@ public class ServerUI { // not extending JFrame untill needed
                 info.setText(null);
                 info.append("current users info");
 
+
             }
         });
 
@@ -48,6 +51,8 @@ public class ServerUI { // not extending JFrame untill needed
             public void actionPerformed(ActionEvent actionEvent) {
                 info.setText(null);
                 info.append("registerd users info");
+                // test purpose only
+                info.append("\n" + displayRegUser());
             }
         });
 
@@ -58,6 +63,22 @@ public class ServerUI { // not extending JFrame untill needed
                 System.exit(0);
             }
         });
+    }
+
+    /**
+     * Test purpose only
+     */
+    public String  displayRegUser() {
+        String res = "";
+        UserService userService = new UserService();
+        List<User> usersList = userService.loadAllUsers();
+        if (usersList == null) return res;
+        for (User usr: usersList) {
+            String line = "Name: " + usr.getUsername() + " Password: " + usr.getPassword() + "\n"
+                    + "ID: " + usr.getId() + "\n";
+            res += line;
+        }
+        return res;
     }
 
 

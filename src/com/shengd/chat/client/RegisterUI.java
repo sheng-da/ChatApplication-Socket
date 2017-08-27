@@ -84,6 +84,7 @@ public class RegisterUI { // not extending JFrame until needed
 
             try {
                 ClientBuffer.objectOutputStream.writeObject(request);
+                ClientBuffer.objectOutputStream.flush();
                 try {
                     response = (Response) ClientBuffer.objectInputStream.readObject();
                 } catch (ClassNotFoundException e) {
@@ -96,7 +97,7 @@ public class RegisterUI { // not extending JFrame until needed
             if (response.getStatus() == ResponseStatus.FAIL) {
                 JOptionPane.showMessageDialog(registerWindow,"Register Fail", "Server Error", JOptionPane.ERROR_MESSAGE);
             } else if (response.getStatus() == ResponseStatus.SUCCESS) {
-                User user = (User) response.getContent("user");
+                User user = (User) response.getContent("usr");
                 JOptionPane.showMessageDialog(registerWindow,"Success!\n" + "Your username: "
                         + user.getUsername() +"\nYour password: " + user.getPassword(),
                         "Register Success", JOptionPane.INFORMATION_MESSAGE);

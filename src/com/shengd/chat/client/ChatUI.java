@@ -73,6 +73,7 @@ public class ChatUI { // all using static structure for now
                     request.setType(RequestType.TEXT);
                     request.addContent("msg",msg);
                     ClientBuffer.objectOutputStream.writeObject(request);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -90,6 +91,11 @@ public class ChatUI { // all using static structure for now
                     request.setType(RequestType.LOGOUT);
                     request.addContent("usr",ClientBuffer.user);
                     ClientBuffer.objectOutputStream.writeObject(request);
+
+
+                    //close outputstream
+                    ClientBuffer.objectOutputStream.flush();
+                    ClientBuffer.objectOutputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

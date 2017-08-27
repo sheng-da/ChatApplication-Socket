@@ -39,8 +39,6 @@ public class Client {
     public boolean start() {
 
         System.out.println("I/O loaded");
-
-       // ui = new ChatUI(this); // pass the socket in UI for now
         new LoginUI();
 
 
